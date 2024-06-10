@@ -114,8 +114,9 @@ impl Node {
                 }
             },
             Node::BinaryExpr {op, left_expr, right_expr } => {
-                let left_expr_value: f64 = left_expr.eval(context).unwrap();
+                let left_expr_value: f64 = left_expr.eval(context).unwrap();                
                 let right_expr_value: f64 = right_expr.eval(context).unwrap();
+                
                 match op {
                     Operator::Plus => Ok(left_expr_value + right_expr_value),
                     Operator::Minus => Ok(left_expr_value - right_expr_value),
@@ -134,7 +135,7 @@ impl Node {
     }
 }
 
-type Func = fn(Vec<f64>, context: ExprContext) -> Result<f64>;
+type Func = fn(Vec<f64>, ExprContext) -> Result<f64>;
 
 #[derive(Debug,Clone)]
 pub struct ExprContext {

@@ -13,7 +13,7 @@ mod tests {
         expr.parse_expr(String::from("5 + 4 * 2 / 16 - 1")).unwrap();
         
         match expr.eval(){
-            Ok(v) => println!("result = {:?}", v),
+            Ok(v) => {println!("result = {:?}", v); assert!(v == 4.5);},
             Err(e) => println!("An error ocurred: {:?}", e),
         }
     }
@@ -39,7 +39,7 @@ mod tests {
         println!("context: {:#?}", expr.context);
 
         match expr.eval(){
-            Ok(v) => println!("result = {:?}", v),
+            Ok(v) => {println!("result = {:?}", v); assert!(v == 8.0);},
             Err(e) => println!("An error ocurred: {:?}", e),
         }
     }
@@ -50,7 +50,7 @@ mod tests {
         expr.parse_expr(String::from("(5 + 4) * (3 - 1)")).unwrap();
         
         match expr.eval(){
-            Ok(v) => println!("result = {:?}", v),
+            Ok(v) => {println!("result = {:?}", v); assert!(v == 18.0);},
             Err(e) => println!("An error ocurred: {:?}", e),
         }
     }
@@ -68,7 +68,7 @@ mod tests {
         println!("context: {:#?}", expr.context);
 
         match expr.eval(){
-            Ok(v) => println!("result = {:?}", v),
+            Ok(v) => { println!("result = {:?}", v); assert!(v == 63.0);},
             Err(e) => println!("An error ocurred: {:?}", e),
         }
     }
@@ -87,8 +87,28 @@ mod tests {
         println!("context: {:#?}", expr.context);
 
         match expr.eval(){
-            Ok(v) => println!("result = {:?}", v),
+            Ok(v) => { println!("result = {:?}", v); assert!(v == 7.0); },
             Err(e) => println!("An error ocurred: {:?}", e),
         }
+    }
+
+    #[test]
+    fn teste_parallel() {
+        std::thread::scope(|scope|{
+            scope.spawn(||{
+                println!("Hello from thread 1");
+                teste1();
+            });
+
+            scope.spawn(||{
+                println!("Hello from thread 2");
+                teste2();
+            });
+
+            scope.spawn(||{
+                println!("Hello from thread 3");
+                teste2();
+            });
+        });        
     }
 }
