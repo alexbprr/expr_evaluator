@@ -1,4 +1,6 @@
-use crate::{expr::{LeafNode, Node, NodeType, Operator}, lexer::*};
+use std::task::Context;
+
+use crate::{expr::{ExprContext, LeafNode, Node, NodeType, Operator}, lexer::*};
 use crate::expr::Operator::*;
 
 pub enum ParserError {
@@ -15,7 +17,7 @@ pub struct Parser {
 
 impl Parser {
 
-    pub fn new(tokens: Vec<Token>) -> Self {
+    pub fn new(tokens: Vec<Token>, ctx: ExprContext) -> Self {
         Self {
             tokens: tokens,
             c_token: Token::new(0, 0, 0, TokenKind::Error(String::from(""))),

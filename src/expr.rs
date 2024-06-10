@@ -13,10 +13,10 @@ use std::fmt;
 use crate::lexer;
 use crate::parser::Parser;
 
-pub(crate) type Result<T> = std::result::Result<T, MathError>;
+pub(crate) type Result<T> = std::result::Result<T, ExprError>;
 
 #[derive(Debug, Clone)]
-pub enum MathError{
+pub enum ExprError{
     UndefinedAST,
     ParserError,
     EvaluationError,
@@ -24,14 +24,14 @@ pub enum MathError{
     UndefinedFunctionError(String)
 }
 
-impl fmt::Display for MathError {    
+impl fmt::Display for ExprError {    
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            MathError::UndefinedAST => write!(f, "The abstract syntax tree is not defined!"),
-            MathError::ParserError => write!(f, "A parser error ocurred!"),
-            MathError::EvaluationError => write!(f, "Evaluation error ocurred! Error evaluating an expression."),
-            MathError::UndefinedVarError(var) => write!(f, "The var {} was not defined", var),
-            MathError::UndefinedFunctionError(func) => write!(f, "The function {} was not defined", func),            
+            ExprError::UndefinedAST => write!(f, "The abstract syntax tree is not defined!"),
+            ExprError::ParserError => write!(f, "A parser error ocurred!"),
+            ExprError::EvaluationError => write!(f, "Evaluation error ocurred! Error evaluating an expression."),
+            ExprError::UndefinedVarError(var) => write!(f, "The var {} was not defined", var),
+            ExprError::UndefinedFunctionError(func) => write!(f, "The function {} was not defined", func),            
         }        
     }
 }
@@ -97,7 +97,7 @@ impl Node {
                                 }
                                 f_ptr(f_args)
                             },
-                            Err(_) => Ok(0.0),
+                            Err(e) => {println!("Error: {}", e); Err(e)},
                         }                        
                     },
                 }
@@ -109,7 +109,7 @@ impl Node {
                     Operator::Minus => {
                         match value {
                             Ok(v) => Ok(- v),
-                            Err(_) => Err(MathError::EvaluationError)
+                            Err(_) => Err(ExprError::EvaluationError)
                         }                        
                     },
                     _ => value,
@@ -125,7 +125,7 @@ impl Node {
                     Operator::Mult => Ok(left_expr_value * right_expr_value),
                     Operator::Div => {
                         if right_expr_value == 0.0 {
-                            Err(MathError::EvaluationError)
+                            Err(ExprError::EvaluationError)
                         }
                         else {
                             return Ok(left_expr_value / right_expr_value)
@@ -158,7 +158,7 @@ impl ExprContext{
     pub fn get_var(&self, name: String) -> Result<f64>{
         match self.vars.get(&name){
             Some(var) => Ok(var.clone()),
-            None => Err(MathError::UndefinedVarError(name)),
+            None => Err(ExprError::UndefinedVarError(name)),
         }
     }
 
@@ -169,7 +169,7 @@ impl ExprContext{
     pub fn get_function(&self, name: String) -> Result<Func> {
         match self.funcs.get(&name){
             Some(f) => Ok(f.clone()),
-            None => Err(MathError::UndefinedFunctionError(name)),
+            None => Err(ExprError::UndefinedFunctionError(name)),
         }
     }
 
@@ -202,7 +202,7 @@ impl Expression {
         //parse the expression and creates the ast tree        
         let tokens = lexer::tokenize_string(text);
         println!("{:#?}", tokens);
-        let mut parser = Parser::new(tokens);
+        let mut parser = Parser::new(tokens, self.context.clone());
         self.ast = Some(parser.parse());
         println!("AST: {:#?}", self.ast);
 
@@ -216,7 +216,7 @@ impl Expression {
                 return ast.eval(&self.context);
             }
         }
-        return Err(MathError::UndefinedAST);
+        return Err(ExprError::UndefinedAST);
     }
 
 }
