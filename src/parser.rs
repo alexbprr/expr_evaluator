@@ -11,7 +11,6 @@ pub struct Parser {
     c_token: Token,
     last_token: Token,
     index: usize,
-    ast: Box<Node>,
 }
 
 impl Parser {
@@ -22,7 +21,6 @@ impl Parser {
             c_token: Token::new(0, 0, 0, TokenKind::Error(String::from(""))),
             last_token: Token::new(0, 0, 0, TokenKind::Error(String::from(""))),
             index: 0,
-            ast: Box::new(Node::Leaf(LeafNode::new(NodeType::Var, String::from("root")))),
         }
     }
 
