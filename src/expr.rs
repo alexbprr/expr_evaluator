@@ -59,24 +59,6 @@ impl LeafNode {
             args: vec![]
         }
     }
-
-    //for testing
-    pub fn new_constant(value: f64) -> Self {
-        Self {
-            node_type: NodeType::Var,
-            name: String::from("constant"),
-            value: value,
-            args: vec![]
-        }
-    }
-
-    pub fn set_value(&mut self, value: f64){
-        self.value = value;
-    }
-
-    pub fn add_arg(&mut self, child: Box<Node>){
-        self.args.push(child);
-    }
 }
 
 #[derive(Clone,Debug)] 

@@ -1,34 +1,6 @@
 use crate::{expr::{LeafNode, Node, NodeType, Operator}, lexer::*};
 use crate::expr::Operator::*;
 
-// struct FunctionRegistry {
-//     return_type: DataTypes, 
-//     parameters: HashMap<String,SymbolValue>,
-//     arguments: HashMap<String,SymbolValue>,
-// }
-
-// enum SymbolType {
-//     Identifier,
-//     FunctionDecl(FunctionRegistry),
-//     FunctionCall(FunctionRegistry)
-// }
-
-// struct SymbolValue {
-//     name: String,
-//     symbol_type: SymbolType,
-//     datatype: DataTypes,
-// }
-
-// impl SymbolValue {
-//     pub fn new(name: String, st: SymbolType, datatype: DataTypes) -> Self {
-//         Self {
-//             name: name,
-//             symbol_type: st,
-//             datatype: datatype,
-//         }
-//     }
-// }
-
 pub enum ParserError {
     FunctionNameNotFoundError
 }
