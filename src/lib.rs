@@ -18,8 +18,16 @@ mod tests {
         }
     }
 
-    pub fn sum(values: Vec<f64>, ctx: ExprContext) -> expr::Result<f64>{
+    /*pub fn sum(values: Vec<f64>, ctx: ExprContext) -> expr::Result<f64>{
         println!("received context: {:#?}", ctx);
+        let mut sum = 0.0;
+        for v in values.iter(){
+            sum += v;
+        }
+        return Ok(sum);
+    }*/
+
+    pub fn sum(values: Vec<f64>) -> expr::Result<f64>{
         let mut sum = 0.0;
         for v in values.iter(){
             sum += v;
@@ -107,7 +115,7 @@ mod tests {
 
             scope.spawn(||{
                 println!("Hello from thread 3");
-                teste2();
+                teste3();
             });
         });        
     }

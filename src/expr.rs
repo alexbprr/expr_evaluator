@@ -17,6 +17,7 @@ pub(crate) type Result<T> = std::result::Result<T, MathError>;
 
 #[derive(Debug, Clone)]
 pub enum MathError{
+    UndefinedAST,
     ParserError,
     EvaluationError,
     UndefinedVarError(String),
@@ -26,10 +27,11 @@ pub enum MathError{
 impl fmt::Display for MathError {    
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
+            MathError::UndefinedAST => write!(f, "The abstract syntax tree is not defined!"),
             MathError::ParserError => write!(f, "A parser error ocurred!"),
             MathError::EvaluationError => write!(f, "Evaluation error ocurred! Error evaluating an expression."),
             MathError::UndefinedVarError(var) => write!(f, "The var {} was not defined", var),
-            MathError::UndefinedFunctionError(func) => write!(f, "The function {} was not defined", func),
+            MathError::UndefinedFunctionError(func) => write!(f, "The function {} was not defined", func),            
         }        
     }
 }
@@ -93,7 +95,7 @@ impl Node {
                                         Err(_) => (),
                                     }
                                 }
-                                f_ptr(f_args, context.clone())
+                                f_ptr(f_args)
                             },
                             Err(_) => Ok(0.0),
                         }                        
@@ -135,7 +137,8 @@ impl Node {
     }
 }
 
-type Func = fn(Vec<f64>, ExprContext) -> Result<f64>;
+//type Func = fn(Vec<f64>, ExprContext) -> Result<f64>;
+type Func = fn(Vec<f64>) -> Result<f64>;
 
 #[derive(Debug,Clone)]
 pub struct ExprContext {
@@ -213,7 +216,7 @@ impl Expression {
                 return ast.eval(&self.context);
             }
         }
-        return Err(MathError::ParserError);
+        return Err(MathError::UndefinedAST);
     }
 
 }
