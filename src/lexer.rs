@@ -24,11 +24,13 @@ pub enum ReservedWords {
     Print,
     Println,
     Return,
+    Populations,
+    Params,
+    Reactions,
 }
 
 #[derive(Debug,PartialEq,Clone,Serialize,Deserialize)]
 pub enum Punctuation {    
-    Arrow,
     Dot,
     Colon,
     Semicolon,
@@ -151,6 +153,9 @@ fn tokenize_ident_reservedword(data: &str) -> Result<(TokenKind,usize),usize> {
     reserved_workds.insert(String::from("print"),TokenKind::ReservedWords(ReservedWords::Print));
     reserved_workds.insert(String::from("println"),TokenKind::ReservedWords(ReservedWords::Println));
     reserved_workds.insert(String::from("return"),TokenKind::ReservedWords(ReservedWords::Return));
+    reserved_workds.insert(String::from("states"),TokenKind::ReservedWords(ReservedWords::Populations));
+    reserved_workds.insert(String::from("params"),TokenKind::ReservedWords(ReservedWords::Params));
+    reserved_workds.insert(String::from("reactions"),TokenKind::ReservedWords(ReservedWords::Reactions));
     
     // identifiers can't start with a number
     match data.chars().next() {
@@ -175,7 +180,7 @@ fn tokenize_ident_reservedword(data: &str) -> Result<(TokenKind,usize),usize> {
 /// Tokenize a numeric literal.
 fn tokenize_number(data: &str) -> Result<(TokenKind, usize),usize> {
     let mut seen_dot = false;
-
+    let mut scientific_notation = false;
     let (decimal, bytes_read) = execute_predicate(data, |c| {
         if c.is_digit(10) {
             true
@@ -186,13 +191,26 @@ fn tokenize_number(data: &str) -> Result<(TokenKind, usize),usize> {
             } else {
                 false
             }
-        } else {
+        } else if c == 'e' {
+            scientific_notation = true;
+            true
+        }
+        else if scientific_notation && c == '-' {
+            true
+        }
+        else {
             false
         }
     })?;
 
-    let n: f64 = decimal.parse::<f64>().unwrap();
-    Ok((TokenKind::FloatConst(n), bytes_read))
+    if seen_dot {
+        let n: f64 = decimal.parse::<f64>().unwrap();
+        Ok((TokenKind::FloatConst(n), bytes_read))
+    }
+    else {
+        let n: i32 = decimal.parse::<i32>().unwrap();
+        Ok((TokenKind::IntConst(n), bytes_read))
+    }
 }
 
 pub fn tokenize_assing_or_equal(data: &str) -> Result<(TokenKind, usize),usize> {

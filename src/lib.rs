@@ -1,5 +1,5 @@
-mod expr;
-mod lexer;
+pub mod expr;
+pub mod lexer;
 mod parser;
 
 #[cfg(test)]
@@ -8,24 +8,15 @@ mod tests {
     use expr::{ExprContext, Expression, LeafNode, Node, NodeType};    
     
     #[test]
-    fn teste1() {
+    fn test1() {
         let mut expr = Expression::new();
         expr.parse_expr(String::from("5 + 4 * 2 / 16 - 1")).unwrap();
         
         match expr.eval(){
             Ok(v) => {println!("result = {:?}", v); assert!(v == 4.5);},
-            Err(e) => println!("An error ocurred: {:?}", e),
+            Err(e) => println!("An error ocurred during expression evaluation: {:?}", e),
         }
     }
-
-    /*pub fn sum(values: Vec<f64>, ctx: ExprContext) -> expr::Result<f64>{
-        println!("received context: {:#?}", ctx);
-        let mut sum = 0.0;
-        for v in values.iter(){
-            sum += v;
-        }
-        return Ok(sum);
-    }*/
 
     pub fn sum(values: Vec<f64>) -> expr::Result<f64>{
         let mut sum = 0.0;
@@ -36,7 +27,7 @@ mod tests {
     }
 
     #[test]
-    fn teste2() {
+    fn test2() {
         let mut ctx = ExprContext::new();
         ctx.set_var(String::from("x"), 5.0);
         ctx.set_func(String::from("sum"), sum);
@@ -53,7 +44,7 @@ mod tests {
     }
 
     #[test]
-    fn teste3() {
+    fn test3() {
         let mut expr = Expression::new();
         expr.parse_expr(String::from("(5 + 4) * (3 - 1)")).unwrap();
         
@@ -64,7 +55,7 @@ mod tests {
     }
 
     #[test]
-    fn teste4() {
+    fn test4() {
         let mut ctx = ExprContext::new();
         ctx.set_var(String::from("x"), 5.0);
         ctx.set_var(String::from("y"), 13.0);
@@ -82,7 +73,7 @@ mod tests {
     }
 
     #[test]
-    fn teste5() {
+    fn test5() {
         let mut ctx = ExprContext::new();
         ctx.set_var(String::from("x"), 5.0);
         ctx.set_var(String::from("y"), 7.0);
@@ -101,21 +92,60 @@ mod tests {
     }
 
     #[test]
-    fn teste_parallel() {
+    fn test6() {
+        let mut ctx = ExprContext::new();
+        ctx.set_var(String::from("x"), 16.0);        
+        
+        let mut expr = Expression::new();
+        expr.parse_expr(String::from("sqrt(x)")).unwrap();
+        expr.set_context(ctx.clone());
+        println!("context: {:?}", expr.context);
+        
+        match expr.eval(){
+            Ok(v) => { println!("result = {:?}", v); assert!(v == 4.0); },
+            Err(e) => println!("An error ocurred: {:?}", e),
+        }
+
+        ctx.set_var(String::from("x"), 3.0);
+        
+        expr = Expression::new();
+        expr.parse_expr(String::from("exp(x)")).unwrap();
+        expr.set_context(ctx.clone());
+        
+        match expr.eval(){
+            Ok(v) => { println!("result = {:?}", v); assert!(((v * 100.0).round()/100.0) == 20.09); },
+            Err(e) => println!("An error ocurred: {:?}", e),
+        }
+
+        ctx.set_var(String::from("x"), 2.0);
+        ctx.set_var(String::from("y"), 3.0);
+        
+        expr = Expression::new();
+        expr.parse_expr(String::from("pow(x,y)")).unwrap();
+        expr.set_context(ctx);
+        
+        match expr.eval(){
+            Ok(v) => { println!("result = {:?}", v); assert!(v == 8.0); },
+            Err(e) => println!("An error ocurred: {:?}", e),
+        }
+    }
+
+    #[test]
+    fn test_parallel() {
         std::thread::scope(|scope|{
             scope.spawn(||{
                 println!("Hello from thread 1");
-                teste1();
+                test1();
             });
 
             scope.spawn(||{
                 println!("Hello from thread 2");
-                teste2();
+                test2();
             });
 
             scope.spawn(||{
                 println!("Hello from thread 3");
-                teste3();
+                test3();
             });
         });        
     }

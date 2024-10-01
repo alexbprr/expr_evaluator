@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-#[derive(Clone,Debug)]
+#[derive(Clone,Debug,Serialize, Deserialize)]
 pub enum Operator {
     Plus,
     Minus,
@@ -8,17 +8,29 @@ pub enum Operator {
     Div,
 }
 
+impl Operator {
+    pub fn to_string(&self) -> String {
+        match self {
+            Operator::Plus => format!("+"),
+            Operator::Minus => format!("-"),
+            Operator::Mult => format!("*"),
+            Operator::Div => format!("/"),
+        }
+    }
+}
+
 use std::fmt;
+
+use serde::{Deserialize, Serialize};
 
 use crate::lexer;
 use crate::parser::Parser;
 
 pub(crate) type Result<T> = std::result::Result<T, ExprError>;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone,Serialize, Deserialize)]
 pub enum ExprError{
     UndefinedAST,
-    ParserError,
     EvaluationError,
     UndefinedVarError(String),
     UndefinedFunctionError(String)
@@ -28,7 +40,6 @@ impl fmt::Display for ExprError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             ExprError::UndefinedAST => write!(f, "The abstract syntax tree is not defined!"),
-            ExprError::ParserError => write!(f, "A parser error ocurred!"),
             ExprError::EvaluationError => write!(f, "Evaluation error ocurred! Error evaluating an expression."),
             ExprError::UndefinedVarError(var) => write!(f, "The var {} was not defined", var),
             ExprError::UndefinedFunctionError(func) => write!(f, "The function {} was not defined", func),            
@@ -36,14 +47,14 @@ impl fmt::Display for ExprError {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone,Serialize, Deserialize)]
 pub enum NodeType {
     Constant,
     Var,
     Function
 }
 
-#[derive(Clone,Debug)] 
+#[derive(Clone,Debug,Serialize, Deserialize)] 
 pub struct LeafNode {
     pub node_type: NodeType,
     pub name: String,
@@ -63,7 +74,7 @@ impl LeafNode {
     }
 }
 
-#[derive(Clone,Debug)] 
+#[derive(Clone,Debug,Serialize, Deserialize)] 
 pub enum Node {
     Leaf(LeafNode), //constant or population
     UnaryExpr {
@@ -137,12 +148,24 @@ impl Node {
     }
 }
 
-//type Func = fn(Vec<f64>, ExprContext) -> Result<f64>;
 type Func = fn(Vec<f64>) -> Result<f64>;
 
-#[derive(Debug,Clone)]
+pub fn sqrt(values: Vec<f64>) -> Result<f64>{
+    return Ok(f64::sqrt(values[0]));
+}
+
+pub fn exp(values: Vec<f64>) -> Result<f64>{
+    return Ok(f64::exp(values[0]));
+}
+
+pub fn pow(values: Vec<f64>) -> Result<f64>{
+    return Ok(f64::powf(values[0], values[1]));
+}
+
+#[derive(Debug,Clone,Serialize,Deserialize)]
 pub struct ExprContext {
 	pub vars: HashMap<String, f64>,
+    #[serde(skip_serializing,skip_deserializing)]
 	pub funcs: HashMap<String, Func>,
 }
 
@@ -151,7 +174,13 @@ impl ExprContext{
     pub fn new() -> Self{
         Self {
             vars: HashMap::new(),
-            funcs: HashMap::new()
+            funcs: {
+                let mut functions: HashMap<String, Func> = HashMap::new();
+                functions.insert(String::from("sqrt"), sqrt);
+                functions.insert(String::from("exp"), exp);
+                functions.insert(String::from("pow"), pow);
+                functions
+            }
         }
     }
 
@@ -179,7 +208,7 @@ impl ExprContext{
 
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Expression {
 	pub context: ExprContext,
 	pub ast: Option<Box<Node>>,
@@ -200,12 +229,8 @@ impl Expression {
 
     pub fn parse_expr(&mut self, text: String) -> Result<bool>{
         //parse the expression and creates the ast tree        
-        let tokens = lexer::tokenize_string(text);
-        println!("{:#?}", tokens);
-        let mut parser = Parser::new(tokens, self.context.clone());
-        self.ast = Some(parser.parse());
-        println!("AST: {:#?}", self.ast);
-
+        let mut parser = Parser::new(lexer::tokenize_string(text));
+        self.ast = Some(parser.parse());        
         Ok(true)
     }
 
