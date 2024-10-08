@@ -191,8 +191,15 @@ impl ExprContext{
         }
     }
 
-    pub fn set_var(&mut self, name: String, value: f64){
-        self.vars.insert(name,value);
+    pub fn insert_var(&mut self, name: String, value: f64) {
+        self.vars.insert(name, value);
+    }
+
+    ///This function does not insert new variables, it only updates them
+    pub fn set_var(&mut self, name: &str, value: f64){
+        if let Some(val) = self.vars.get_mut(name) {
+            *val = value;
+        }
     }
 
     pub fn get_function(&self, name: String) -> Result<Func> {
