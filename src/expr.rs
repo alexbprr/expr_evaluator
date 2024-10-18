@@ -191,11 +191,12 @@ impl ExprContext{
         }
     }
 
+    ///Inserts a new pair (key, value) in the context
     pub fn insert_var(&mut self, name: String, value: f64) {
         self.vars.insert(name, value);
     }
 
-    ///This function does not insert new variables, it only updates them
+    ///This function does not insert new variables, it only updates them in the context
     pub fn set_var(&mut self, name: &str, value: f64){
         if let Some(val) = self.vars.get_mut(name) {
             *val = value;
@@ -228,10 +229,6 @@ impl Expression {
             context: ExprContext::new(),
             ast:  None,
         }
-    }
-
-    pub fn set_context(&mut self, ctx: ExprContext) {
-        self.context = ctx;
     }
 
     pub fn parse_expr(&mut self, text: String) -> Result<bool>{

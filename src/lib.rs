@@ -29,7 +29,7 @@ mod tests {
     #[test]
     fn test2() {
         let mut ctx = ExprContext::new();
-        ctx.set_var(String::from("x"), 5.0);
+        ctx.set_var("x", 5.0);
         ctx.set_func(String::from("sum"), sum);
 
         let mut expr = Expression::new();
@@ -57,8 +57,8 @@ mod tests {
     #[test]
     fn test4() {
         let mut ctx = ExprContext::new();
-        ctx.set_var(String::from("x"), 5.0);
-        ctx.set_var(String::from("y"), 13.0);
+        ctx.set_var("x", 5.0);
+        ctx.set_var("y", 13.0);
         ctx.set_func(String::from("sum"), sum);
 
         let mut expr = Expression::new();
@@ -75,9 +75,9 @@ mod tests {
     #[test]
     fn test5() {
         let mut ctx = ExprContext::new();
-        ctx.set_var(String::from("x"), 5.0);
-        ctx.set_var(String::from("y"), 7.0);
-        ctx.set_var(String::from("z"), 11.0);
+        ctx.set_var("x", 5.0);
+        ctx.set_var("y", 7.0);
+        ctx.set_var("z", 11.0);
         ctx.set_func(String::from("sum"), sum);
 
         let mut expr = Expression::new();
@@ -94,7 +94,7 @@ mod tests {
     #[test]
     fn test6() {
         let mut ctx = ExprContext::new();
-        ctx.set_var(String::from("x"), 16.0);        
+        ctx.set_var("x", 16.0);        
         
         let mut expr = Expression::new();
         expr.parse_expr(String::from("sqrt(x)")).unwrap();
@@ -106,7 +106,7 @@ mod tests {
             Err(e) => println!("An error ocurred: {:?}", e),
         }
 
-        ctx.set_var(String::from("x"), 3.0);
+        ctx.set_var("x", 3.0);
         
         expr = Expression::new();
         expr.parse_expr(String::from("exp(x)")).unwrap();
@@ -117,8 +117,8 @@ mod tests {
             Err(e) => println!("An error ocurred: {:?}", e),
         }
 
-        ctx.set_var(String::from("x"), 2.0);
-        ctx.set_var(String::from("y"), 3.0);
+        ctx.set_var("x", 2.0);
+        ctx.set_var("y", 3.0);
         
         expr = Expression::new();
         expr.parse_expr(String::from("pow(x,y)")).unwrap();
